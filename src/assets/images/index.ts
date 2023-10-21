@@ -19,8 +19,18 @@ import AME from './ame.png'
 import BTCIX from './btcix.png'
 import CNDL from './cndl.svg'
 import EDG from './edg.svg'
+import FKW from './fkw.png'
+import OZO from './ozo.png'
+import BASE_ETH from './baseEth.svg'
+import OP_BNB from './opbnb.svg'
+import SHIBARIUM from './shibarium.png'
+import GUAPX from './guapx.png'
+import SCROLL_ETH from './scroll.io.png'
+import Q from './q.png'
+
 
 export const CURRENCY = {
+  SCROLL_ETH,
   ETH,
   BNB,
   MATIC,
@@ -42,6 +52,12 @@ export const CURRENCY = {
   BTCIX,
   CNDL,
   EDG,
+  FKW,
+  OZO,
+  BASE_ETH,
+  OP_BNB,
+  Q,
+  GUAPX,
 
   // ------------
 
@@ -55,7 +71,7 @@ export const CURRENCY = {
   137: MATIC,
   80001: MATIC,
   42161: ARBITRUM,
-  421611: ARBITRUM,
+  421613: ARBITRUM,
   10: OPTIMISTIC_ETH,
   69: OPTIMISTIC_ETH,
   100: XDAI,
@@ -84,4 +100,29 @@ export const CURRENCY = {
   19845: BTCIX,
   534: CNDL,
   2021: EDG,
+
+  1442: ETH,
+  1101: ETH,
+
+  // Fokawa
+  40821: FKW,
+  5163: FKW,
+
+  // Ozon
+  4000: OZO,
+  401: OZO,
+  // Base
+  8453: BASE_ETH,
+  84531: BASE_ETH,
+  // opBNB
+  5611: OP_BNB,
+  204: OP_BNB,
+  // Shibarium
+  109: SHIBARIUM,
+  71111: GUAPX,
+  534352: SCROLL_ETH, // Mainnet
+  534351: SCROLL_ETH, // Testnet
+  // Q
+  35441: Q, // Mainnet
+  35443: Q, // Testnet
 }

@@ -186,15 +186,25 @@ const ButtonAddStyle = styled(CleanButton)<{ disabled?: boolean }>`
   justify-content: center;
   background-color: ${({ theme }) => theme.primary2};
   color: ${({ theme }) => theme.white1};
-  ${({ disabled }) => (disabled ? `pointer-events: none; opacity: .6;` : '')}
+  ${({ disabled }) => (disabled ? 'pointer-events: none; opacity: 0.6;' : '')}
 `
 
-export function ButtonAdd({ onClick, disabled }: { onClick: () => void; disabled?: boolean }) {
+export function ButtonAdd({
+  onClick,
+  disabled,
+  title,
+  style,
+}: {
+  onClick: () => void
+  disabled?: boolean
+  title?: string
+  style?: any
+}) {
   const { t } = useTranslation()
 
   return (
-    <ButtonAddStyle onClick={onClick} disabled={disabled} title={t('add')}>
-      {t('add')}
+    <ButtonAddStyle style={style} onClick={onClick} disabled={disabled} title={t(title || 'add')}>
+      {t(title || 'add')}
     </ButtonAddStyle>
   )
 }

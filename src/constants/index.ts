@@ -3,17 +3,21 @@ import { AbstractConnector } from '@web3-react/abstract-connector'
 import { injected, newWalletConnect, newWalletlink } from '../connectors'
 import networks from 'networks.json'
 
-export const DEV_FEE_ADMIN = '0x6D1EB33c063CBe69d064EE22537dBF107e8816f6'
+export type NetworksId = keyof typeof networks
 
-export type NETWORKS_ID = keyof typeof networks
-
-const BSC_ID = 56
-const GOERLI_ID = 5
+export const BSC_ID = 56
+export const BSC_TESTNET_ID = 97
+export const OPBNB_TESTNET_ID = 5611
+export const OPBNB_MAINNET_ID = 204
+export const POLYGON_TESTNET_ID = 80001
+export const AVALANCHE_TESTNET_ID = 43113
+export const POLIGON_ZKEVM_TESTNET_ID = 1442
+export const GOERLI_ID = 5
 
 export const STORAGE_NETWORK_ID = process.env.NODE_ENV === 'production' ? BSC_ID : GOERLI_ID
-export const STORAGE_NETWORK_NAME = networks[STORAGE_NETWORK_ID.toString() as NETWORKS_ID].name
+export const STORAGE_NETWORK_NAME = networks[STORAGE_NETWORK_ID.toString() as NetworksId].name
 // @ts-ignore
-export const STORAGE = networks[STORAGE_NETWORK_ID.toString() as NETWORKS_ID].storage
+export const STORAGE = networks[STORAGE_NETWORK_ID.toString() as NetworksId].storage
 // through this key we get/set this app settings (we use the storage contract for many apps)
 export const STORAGE_APP_KEY = 'definance'
 
@@ -30,6 +34,7 @@ export enum StorageMethod {
 export enum FactoryMethod {
   allInfo = 'allInfo',
   setFeeTo = 'setFeeTo',
+  setOnoutFeeTo = 'setOnoutFeeTo',
   setFeeToSetter = 'setFeeToSetter',
   setAllFeeToProtocol = 'setAllFeeToProtocol',
   setMainFees = 'setMainFees',
@@ -37,7 +42,7 @@ export enum FactoryMethod {
   setProtocolFee = 'setProtocolFee',
 }
 
-export const DOMAIN_REGEXP = /^[a-zA-Z0-9][a-zA-Z0-9-]{1,61}[a-zA-Z0-9](?:\.[a-zA-Z]{2,})+$/
+export const DOMAIN_REGEXP = /^([a-zA-Z0-9][a-zA-Z0-9-_]*\.)*[a-zA-Z0-9]*[a-zA-Z0-9-_]*[[a-zA-Z0-9]+$/
 
 export const HEX_COLOR_REGEXP = /^#([\dA-F]{3}){1,2}$/i
 export const RGB_COLOR_REGEXP = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/
@@ -123,3 +128,10 @@ export const MIN_ETH: JSBI = JSBI.exponentiate(JSBI.BigInt(10), JSBI.BigInt(16))
 export const BETTER_TRADE_LESS_HOPS_THRESHOLD = new Percent(JSBI.BigInt(50), JSBI.BigInt(10000))
 export const ZERO_PERCENT = new Percent('0')
 export const ONE_HUNDRED_PERCENT = new Percent('1')
+
+export enum ERROR_CODE {
+  rejectedTx = 4001,
+}
+
+export const THIRTY_SECONDS_IN_MS = 30_000
+export const ONE_HOUR_IN_MS = 3_600_000

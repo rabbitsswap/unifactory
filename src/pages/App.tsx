@@ -9,6 +9,7 @@ import { ZERO_ADDRESS } from 'sdk'
 import useWordpressInfo from 'hooks/useWordpressInfo'
 import { useAppState } from 'state/application/hooks'
 import { retrieveDomainData } from 'state/application/actions'
+import { enableList } from 'state/lists/actions'
 import { fetchDomainData, getCurrentDomain } from 'utils/app'
 import { useStorageContract } from 'hooks/useContract'
 import { SUPPORTED_CHAIN_IDS } from '../connectors'
@@ -28,7 +29,6 @@ import {
   RedirectToAddLiquidity,
 } from './AddLiquidity/redirects'
 import Pool from './Pool'
-import Pools from './Pools'
 import PoolFinder from './PoolFinder'
 import RemoveLiquidity from './RemoveLiquidity'
 import { RedirectOldRemoveLiquidityPathStructure } from './RemoveLiquidity/redirects'
@@ -108,7 +108,7 @@ export default function App() {
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    setGreetingScreenIsActive(!domainData || !domainData?.admin)
+    setGreetingScreenIsActive(!domainData?.admin)
 
     // Set favicon
     const faviconUrl = localStorage.getItem('faviconUrl')
@@ -145,11 +145,15 @@ export default function App() {
 
     try {
       const start = async () => {
-        const data = await fetchDomainData(chainId, library, storage)
+        const data = await fetchDomainData({ chainId, library, storage })
 
         if (data) {
           dispatch(retrieveDomainData(data))
           setDomainData(data)
+
+          if (data.addressesOfTokenLists?.length) {
+            data.addressesOfTokenLists.forEach((l) => dispatch(enableList(l)))
+          }
         }
 
         setLoading(false)
@@ -181,7 +185,7 @@ export default function App() {
     <Suspense fallback={null}>
       <HelmetProvider>
         <Helmet>
-          <title>{!!DOMAIN_TITLES[domain] ? DOMAIN_TITLES[domain] : projectName || document.title}</title>
+          <title>{DOMAIN_TITLES[domain] ? DOMAIN_TITLES[domain] : projectName || document.title}</title>
         </Helmet>
 
         <Route component={DarkModeQueryParamReader} />
@@ -212,7 +216,6 @@ export default function App() {
                         <Route exact strict path="/claim" component={OpenClaimAddressModalAndRedirectToSwap} />
                         <Route exact strict path="/find" component={PoolFinder} />
                         <Route exact strict path="/pool" component={Pool} />
-                        <Route exact strict path="/pools" component={Pools} />
                         <Route exact strict path="/create" component={RedirectToAddLiquidity} />
                         <Route exact path="/add" component={AddLiquidity} />
                         <Route exact path="/add/:currencyIdA" component={RedirectOldAddLiquidityPathStructure} />

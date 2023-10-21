@@ -45,13 +45,14 @@ const makeBaseStructure = (data: { [k: string]: any }) => {
   if (!data[STORAGE_APP_KEY]) {
     data[STORAGE_APP_KEY] = {}
   }
-
+  if (!data[STORAGE_APP_KEY].contracts) {
+    data[STORAGE_APP_KEY].contracts = {}
+  }
   if (!data[STORAGE_APP_KEY].tokenLists) {
     data[STORAGE_APP_KEY].tokenLists = {}
   }
-
-  if (!data[STORAGE_APP_KEY].tokenLists) {
-    data[STORAGE_APP_KEY].tokenLists = {}
+  if (!data[STORAGE_APP_KEY].additions) {
+    data[STORAGE_APP_KEY].additions = {}
   }
 
   return data
@@ -61,12 +62,23 @@ const isEmptyChain = (tokenLists: { [chainId: string]: any }, chainId: string) =
   return !Object.keys(tokenLists[chainId])?.length
 }
 
+// @todo Update data with recursion. Get rid of this mess.
 const updateData = (oldData: Data, newData: Data) => {
   oldData = makeBaseStructure(oldData)
 
   let result
 
-  if (newData.tokenList) {
+  // Update all token lists
+  if (newData.tokenLists) {
+    result = {
+      ...oldData,
+      [STORAGE_APP_KEY]: {
+        ...oldData[STORAGE_APP_KEY],
+        tokenLists: newData.tokenLists,
+      },
+    }
+    // Update or add one token list
+  } else if (newData.tokenList) {
     const { oldChainId, oldId, chainId, id } = newData.tokenList
 
     const tokenLists = {
@@ -78,17 +90,17 @@ const updateData = (oldData: Data, newData: Data) => {
     }
 
     if (chainId !== oldChainId) {
-      delete tokenLists[oldChainId][oldId]
+      tokenLists[oldChainId][oldId] = undefined
     } else if (id !== oldId) {
-      delete tokenLists[chainId][oldId]
+      tokenLists[chainId][oldId] = undefined
     }
 
     if (isEmptyChain(tokenLists, oldChainId)) {
-      delete tokenLists[oldChainId]
+      tokenLists[oldChainId] = undefined
     }
 
     if (isEmptyChain(tokenLists, chainId)) {
-      delete tokenLists[chainId]
+      tokenLists[chainId] = undefined
     }
 
     result = {
@@ -112,6 +124,10 @@ const updateData = (oldData: Data, newData: Data) => {
           ...oldData[STORAGE_APP_KEY].tokenLists,
           ...newData.tokenLists,
         },
+        additions: {
+          ...oldData[STORAGE_APP_KEY].additions,
+          ...newData.additions,
+        },
       },
     }
   }
@@ -134,7 +150,7 @@ export const saveAppData = async (params: {
 
     const newData = updateData(JSON.parse(info || '{}'), data)
 
-    return new Promise(async (resolve, reject) => {
+    return new Promise((resolve, reject) => {
       storage.methods
         .setKeyData(getCurrentDomain(), {
           owner,
@@ -169,16 +185,18 @@ export const migrateToNewDomain = async ({
   try {
     const storage = getStorage(library, STORAGE)
     const { info } = await storage.methods[StorageMethod.getData](oldDomain.toLowerCase()).call()
-
-    await storage.methods[StorageMethod.setKeyData](newDomain.toLowerCase(), {
+    const receipt = await storage.methods[StorageMethod.setKeyData](newDomain.toLowerCase(), {
       owner,
       info,
     }).send({
       from: owner,
     })
+
     await storage.methods[StorageMethod.clearKeyData](oldDomain.toLowerCase()).send({
       from: owner,
     })
+
+    return { hash: receipt?.transactionHash || '' }
   } catch (error) {
     console.error(error)
     throw error

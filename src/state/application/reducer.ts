@@ -1,6 +1,7 @@
 import { createReducer, nanoid } from '@reduxjs/toolkit'
 import { TokenList } from '@uniswap/token-lists/dist/types'
 import { SUPPORTED_NETWORKS } from '../../connectors'
+import { Addition } from '../../constants/onout'
 import {
   setAppManagement,
   retrieveDomainData,
@@ -8,7 +9,6 @@ import {
   PopupContent,
   removePopup,
   updateBlockNumber,
-  updateActivePools,
   updateAppOptions,
   ApplicationModal,
   setOpenModal,
@@ -55,11 +55,20 @@ export type StorageState = {
   addressesOfTokenLists: string[]
   disableSourceCopyright: boolean
   defaultSwapCurrency: { input: string; output: string }
+  onoutFeeTo: string
+  additions: Partial<
+    Record<
+      Addition,
+      {
+        key: string
+        isValid: boolean
+      }
+    >
+  >
 }
 
 export type ApplicationState = StorageState & {
   readonly appManagement: boolean
-  readonly pools: string[]
   readonly blockNumber: { readonly [chainId: number]: number }
   readonly popupList: PopupList
   readonly openModal: ApplicationModal | null
@@ -79,7 +88,6 @@ const initialState: ApplicationState = {
   possibleProtocolPercent: [],
   totalSwaps: undefined,
   disableSourceCopyright: false,
-  pools: [],
   domain: '',
   projectName: '',
   brandColor: '',
@@ -97,6 +105,8 @@ const initialState: ApplicationState = {
   socialLinks: [],
   addressesOfTokenLists: [],
   defaultSwapCurrency: { input: '', output: '' },
+  onoutFeeTo: '',
+  additions: {},
   // --------------------------
   appManagement: false,
   blockNumber: {},
@@ -137,11 +147,6 @@ export default createReducer(initialState, (builder) =>
         })
       }
     })
-    .addCase(updateActivePools, (state, action) => {
-      const { pools } = action.payload
-
-      state.pools = pools
-    })
     .addCase(updateBlockNumber, (state, action) => {
       const { chainId, blockNumber } = action.payload
       if (typeof state.blockNumber[chainId] !== 'number') {
@@ -153,7 +158,7 @@ export default createReducer(initialState, (builder) =>
     .addCase(setOpenModal, (state, action) => {
       state.openModal = action.payload
     })
-    .addCase(addPopup, (state, { payload: { content, key, removeAfterMs = 15000 } }) => {
+    .addCase(addPopup, (state, { payload: { content, key, removeAfterMs = 15_000 } }) => {
       state.popupList = (key ? state.popupList.filter((popup) => popup.key !== key) : state.popupList).concat([
         {
           key: key || nanoid(),
